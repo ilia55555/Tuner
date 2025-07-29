@@ -1,5 +1,5 @@
-import { NOTE_NAMES } from '../constants';
-import type { NoteDetails } from '../types';
+import { NOTE_NAMES } from '../constants.ts';
+import type { NoteDetails } from '../types.ts';
 
 export function frequencyToNote(frequency: number, a4Frequency: number): NoteDetails | null {
   if (frequency <= 0) return null;

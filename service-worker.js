@@ -1,91 +1,90 @@
-const CACHE_NAME = 'tuner-cache-v2';
-// Add the new Babel script to the cache list
+// A unique name for the cache, change this to force updates.
+const CACHE_NAME = 'tuner-cache-v-final-7'; 
+
+// A list of all the essential files the app needs to run offline.
+// All paths are now explicitly relative to avoid cross-origin issues.
 const URLS_TO_CACHE = [
-  '/',
-  'index.html',
-  'index.tsx',
-  'App.tsx',
-  'types.ts',
-  'constants.ts',
-  'utils/musicUtils.ts',
-  'hooks/usePitchDetection.ts',
-  'components/Controls.tsx',
-  'components/TunerDisplay.tsx',
-  'components/FrequencyControl.tsx',
-  'assets/icon.svg',
-  'manifest.json',
+  './',
+  './index.html',
+  './index.tsx',
+  './App.tsx',
+  './types.ts',
+  './constants.ts',
+  './utils/musicUtils.ts',
+  './hooks/usePitchDetection.ts',
+  './components/Controls.tsx',
+  './components/TunerDisplay.tsx',
+  './components/FrequencyControl.tsx',
+  './icon.svg',
+  './manifest.json',
   // External assets for full offline capability
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap',
-  "https://esm.sh/react@^19.1.1",
-  "https://esm.sh/react-dom@^19.1.1/client",
-  "https://unpkg.com/@babel/standalone/babel.min.js"
+  'https://esm.sh/react@^19.1.1',
+  'https://esm.sh/react-dom@^19.1.1/client',
+  'https://unpkg.com/@babel/standalone/babel.min.js'
 ];
 
-// On install, cache all assets
+// Event: install
+// This is where we cache all the essential files for the app.
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('Opened cache and caching assets');
-      return cache.addAll(URLS_TO_CACHE);
-    }).then(() => {
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log(`[Service Worker] Caching all assets in ${CACHE_NAME}`);
+        // Use {cache: 'reload'} to bypass the browser's HTTP cache for these requests.
+        const cachePromises = URLS_TO_CACHE.map(urlToCache => {
+            return cache.add(new Request(urlToCache, {cache: 'reload'}));
+        });
+        return Promise.all(cachePromises);
+      })
+      .then(() => {
         // Force the waiting service worker to become the active service worker.
         return self.skipWaiting();
-    })
+      })
+      .catch((error) => {
+        console.error('[Service Worker] Caching failed:', error);
+      })
   );
 });
 
-// On activate, clean up old caches
+// Event: activate
+// This is where we clean up old, unused caches.
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+            console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-        // Tell the active service worker to take control of the page immediately.
-        return self.clients.claim();
+      // Take control of all open clients immediately.
+      return self.clients.claim();
     })
   );
 });
 
-
-// On fetch, use a robust "network falling back to cache" strategy for navigation
-// and "cache first" for other assets.
+// Event: fetch
+// This is where we define how to handle network requests.
+// We use a "Cache first, falling back to network" strategy.
 self.addEventListener('fetch', (event) => {
-    // For HTML navigation requests, try the network first to get the latest version.
-    if (event.request.mode === 'navigate') {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    // If network is available, cache the new response for offline use.
-                    return caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, response.clone());
-                        return response;
-                    });
-                })
-                .catch(() => {
-                    // If network fails, serve the page from the cache.
-                    return caches.match(event.request);
-                })
-        );
-        return;
-    }
-
-    // For all other requests (assets like JS, CSS, images), serve from cache first for speed.
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            // Return cached response if found.
-            if (response) {
-                return response;
-            }
-            // Otherwise, fetch from the network.
-            return fetch(event.request);
-        })
-    );
+  event.respondWith(
+    caches.match(event.request)
+      .then((cachedResponse) => {
+        // Return the cached response if it exists.
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        // Otherwise, fetch from the network.
+        return fetch(event.request).then(networkResponse => {
+            // We don't cache new requests on the fly here,
+            // as all essentials are cached on install.
+            return networkResponse;
+        });
+      })
+  );
 });

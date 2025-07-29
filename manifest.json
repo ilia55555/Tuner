@@ -4,13 +4,13 @@
   "description": "یک تیونر موسیقی دقیق با رابط کاربری گونیا-مانند برای تشخیص نت‌ها در هفت اکتاو پیانو. این برنامه فرکانس و انحراف نت را با دقت بالا نمایش می‌دهد.",
   "icons": [
     {
-      "src": "assets/icon.svg",
+      "src": "./icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     }
   ],
-  "start_url": ".",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",

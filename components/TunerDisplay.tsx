@@ -1,7 +1,6 @@
-
 import React from 'react';
-import type { NoteDetails } from '../types';
-import { CENTS_RANGE } from '../constants';
+import type { NoteDetails } from '../types.ts';
+import { CENTS_RANGE } from '../constants.ts';
 
 interface TunerDisplayProps {
   note: NoteDetails | null;

@@ -1,12 +1,11 @@
-
 import React, { useState, useCallback } from 'react';
-import { usePitchDetection } from './hooks/usePitchDetection';
-import { frequencyToNote } from './utils/musicUtils';
-import type { Pitch, NoteDetails } from './types';
-import TunerDisplay from './components/TunerDisplay';
-import Controls from './components/Controls';
-import FrequencyControl from './components/FrequencyControl';
-import { DEFAULT_A4_FREQUENCY } from './constants';
+import { usePitchDetection } from './hooks/usePitchDetection.ts';
+import { frequencyToNote } from './utils/musicUtils.ts';
+import type { Pitch, NoteDetails } from './types.ts';
+import TunerDisplay from './components/TunerDisplay.tsx';
+import Controls from './components/Controls.tsx';
+import FrequencyControl from './components/FrequencyControl.tsx';
+import { DEFAULT_A4_FREQUENCY } from './constants.ts';
 
 const App: React.FC = () => {
   const [note, setNote] = useState<NoteDetails | null>(null);

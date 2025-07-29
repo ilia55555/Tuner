@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Pitch } from '../types';
-import { CLARITY_THRESHOLD } from '../constants';
+import type { Pitch } from '../types.ts';
+import { CLARITY_THRESHOLD } from '../constants.ts';
 
 /**
  * Implements the McLeod Pitch Method (MPM) to find the fundamental frequency of a signal.
